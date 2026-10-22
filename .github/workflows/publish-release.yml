@@ -5,6 +5,8 @@ on:
     types: [published]
 jobs:
   Get-Properties:
+    # The original publisher owns the CurseForge project used by this workflow.
+    if: github.repository == 'gnembon/carpet-extra'
     runs-on: ubuntu-latest
     outputs:
       release-type: ${{ steps.type.outputs.release-type }}
@@ -58,6 +60,7 @@ jobs:
                 core.setFailed('Version number is the same as a previous release!')
             }
   Build-And-Publish:
+    if: github.repository == 'gnembon/carpet-extra'
     runs-on: ubuntu-latest
     needs: [Get-Properties]
     strategy:
@@ -124,6 +127,7 @@ jobs:
           relations: carpet:requiredDependency
           release_type: ${{ needs.Get-Properties.outputs.release-type }}
   Update-Rules-to-Readme:
+    if: github.repository == 'gnembon/carpet-extra'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Carpet extra sources
