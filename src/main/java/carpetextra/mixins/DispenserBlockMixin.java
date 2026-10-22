@@ -24,7 +24,7 @@ public abstract class DispenserBlockMixin
 
     // this is old code to keep dispenserPlacesBlocks working as is
     // new behaviors should go in CarpetExtraDispenserBehaviors class
-    @Inject(method = "getBehaviorForItem", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getBehaviorForItem(Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/block/dispenser/DispenserBehavior;", at = @At("HEAD"), cancellable = true)
     private void getBehaviorForItem(World world, ItemStack stack, CallbackInfoReturnable<DispenserBehavior> cir)
     {
         Item item = stack.getItem();

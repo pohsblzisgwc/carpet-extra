@@ -1,0 +1,24 @@
+name: Manual GameTests
+
+on: [workflow_dispatch]
+
+jobs:
+  GameTest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set up JDK 25
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: 25
+        cache: 'gradle'
+    - name: Grant execute permission to gradlew
+      run: chmod +x gradlew
+    - name: Run server GameTests
+      run: ./gradlew runGameTest
+    - uses: actions/upload-artifact@v7
+      if: always()
+      with:
+        name: gametest-results
+        path: build/junit.xml

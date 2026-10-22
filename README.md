@@ -2,6 +2,8 @@
 
 # Carpet Extra
 
+This fork provides a modified Minecraft 26.3 Fabric port by pohsblzisgwc, dated 2026-10-22. It is distributed under LGPLv3; see [NOTICE.md](NOTICE.md) for attribution, corresponding source, and build instructions, and [the migration report](docs/porting-26.3.md) for validation details.
+
 [![Development Builds](https://github.com/gnembon/carpet-extra/actions/workflows/devbuild.yml/badge.svg)](https://github.com/gnembon/carpet-extra/actions/workflows/devbuild.yml)
 [![CurseForge downloads](http://cf.way2muchnoise.eu/full_349240_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/carpet-extra)
 [![Modrinth downloads](https://img.shields.io/modrinth/dt/carpet-extra?label=Modrinth%20downloads&logo=modrinth)](https://modrinth.com/mod/carpet-extra)

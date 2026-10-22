@@ -36,9 +36,8 @@ import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.entity.passive.GoatEntity;
 import net.minecraft.entity.passive.MooshroomEntity;
-import net.minecraft.item.AxeItem;
+import net.minecraft.component.type.BlockTransformerComponents;
 import net.minecraft.item.BoatItem;
-import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -193,19 +192,21 @@ public class CarpetExtraDispenserBehaviors {
         }
 
         // dispensersStripBlocks
-        if(CarpetExtraSettings.dispensersStripBlocks && item instanceof AxeItem && (StripBlocksDispenserBehavior.canStrip(frontBlock) || StripBlocksDispenserBehavior.isStripResult(frontBlock))) {
+        if(CarpetExtraSettings.dispensersStripBlocks && BlockTransformerHelper.hasTransformer(stack, BlockTransformerComponents.AXE)
+                && (BlockTransformerHelper.canTransform(stack, world, frontBlockPos) || BlockTransformerHelper.isTransformResult(stack, frontBlock))) {
             return STRIP_BLOCK;
         }
 
         // dispensersTillSoil
-        if(CarpetExtraSettings.dispensersTillSoil && item instanceof HoeItem) {
+        if(CarpetExtraSettings.dispensersTillSoil && BlockTransformerHelper.hasTransformer(stack, BlockTransformerComponents.HOE)) {
             // check block in front of dispenser and one block down
             for(int i = 0; i < 2; i++) {
                 BlockPos hoeBlockPos = frontBlockPos.down(i);
                 Block hoeBlock = world.getBlockState(hoeBlockPos).getBlock();
 
                 // check if block is in tilled blocks, or is farmland (to prevent hoe being dispensed when you don't want it to)
-                if(TillSoilDispenserBehavior.TILLED_BLOCKS.contains(hoeBlock) || hoeBlock == Blocks.FARMLAND) {
+                if(TillSoilDispenserBehavior.isTillable(world.getBlockState(hoeBlockPos))
+                        || BlockTransformerHelper.canTransform(stack, world, hoeBlockPos) || hoeBlock == Blocks.FARMLAND) {
                     return TILL_SOIL;
                 }
             }

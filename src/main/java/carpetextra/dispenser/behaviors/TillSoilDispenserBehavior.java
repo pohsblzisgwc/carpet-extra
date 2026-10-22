@@ -1,16 +1,15 @@
 package carpetextra.dispenser.behaviors;
 
-import java.util.Set;
-
 import carpetextra.dispenser.DispenserItemUsageContext;
-import carpetextra.mixins.HoeItem_TilledBlocksAccessorMixin;
-import net.minecraft.block.Block;
+import carpetextra.dispenser.BlockTransformerHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.DispenserBlock;
 import net.minecraft.block.dispenser.FallibleItemDispenserBehavior;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPointer;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +17,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public class TillSoilDispenserBehavior extends FallibleItemDispenserBehavior {
-    public static final Set<Block> TILLED_BLOCKS = HoeItem_TilledBlocksAccessorMixin.getTilledBlocks().keySet();
+    public static boolean isTillable(BlockState state) {
+        return state.isIn(BlockTags.TURNS_INTO_FARMLAND) || state.is(Blocks.COARSE_DIRT) || state.is(Blocks.ROOTED_DIRT);
+    }
 
     @Override
     protected ItemStack dispenseSilently(BlockPointer pointer, ItemStack stack) {
@@ -30,11 +31,8 @@ public class TillSoilDispenserBehavior extends FallibleItemDispenserBehavior {
         // check block in front of dispenser and one block down
         for(int i = 0; i < 2; i++) {
             BlockPos hoeBlockPos = frontBlockPos.down(i);
-            BlockState hoeBlockState = world.getBlockState(hoeBlockPos);
-            Block hoeBlock = hoeBlockState.getBlock();
-
             // check if hoe can be used on block
-            if(TILLED_BLOCKS.contains(hoeBlock)) {
+            if(BlockTransformerHelper.canTransform(stack, world, hoeBlockPos)) {
                 BlockHitResult hitResult = new BlockHitResult(Vec3d.of(hoeBlockPos), dispenserFacing.getOpposite(), hoeBlockPos, false);
                 ItemUsageContext context = new DispenserItemUsageContext(world, stack, hitResult);
 

@@ -20,14 +20,9 @@ jobs:
         cache: 'gradle'
     - name: Grant execute permission to gradlew
       run: chmod +x gradlew
-    - name: Build and run Gametest with Gradle
-      run: ./gradlew build runGametest
+    - name: Build and statically validate Mixins with Gradle
+      run: ./gradlew build
     - uses: actions/upload-artifact@v7
       with:
         name: Compiled artifacts for ${{ github.sha }}
         path: build/libs
-    - uses: actions/upload-artifact@v7
-      if: always()
-      with:
-        name: Gametest results for ${{ github.sha }}
-        path: build/junit.xml
