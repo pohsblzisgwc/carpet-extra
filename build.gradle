@@ -4,8 +4,13 @@ plugins {
 }
 
 repositories {
-	maven {
-		url = 'https://masa.dy.fi/maven'
+	exclusiveContent {
+		forRepository {
+			maven { url = 'https://api.modrinth.com/maven' }
+		}
+		filter {
+			includeGroup 'maven.modrinth'
+		}
 	}
 	// For deobf yarn, until I've had time to review PRs in old mappings (to not break them)
 	exclusiveContent {
@@ -16,7 +21,6 @@ repositories {
 			includeGroup "org.relativitymc"
 		}
 	}
-	maven { url = 'https://jitpack.io' } // TODO remove once fabric-carpet@8563bef68ac5d6ec8cea08fef825653f05d3786a is published
 }
 
 base {
@@ -41,12 +45,28 @@ tasks.named('runGameTest', JavaExec).configure {
 	]
 }
 
+// Inspect class files without starting Minecraft or applying mixins at runtime.
+tasks.register('checkMixins', JavaExec) {
+	group = 'verification'
+	description = 'Statically validate mixin targets against the Minecraft and Fabric dependencies.'
+	dependsOn tasks.named('classes'), tasks.named('gametestClasses')
+	classpath = sourceSets.main.runtimeClasspath + sourceSets.gametest.runtimeClasspath
+	mainClass = file('scripts/ValidateMixins.java').absolutePath
+	args 'src/main/resources/carpet-extra.mixins.json', 'src/gametest/resources/gametest-machinery.mixins.json'
+}
+
+tasks.named('check') {
+	// Loom adds runGameTest automatically. Runtime checks are an explicit user action.
+	setDependsOn(dependsOn.findAll { it != 'runGameTest' })
+	dependsOn tasks.named('checkMixins')
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "org.relativitymc:modern-yarn:${project.modern_yarn_version}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "com.github.gnembon:fabric-carpet:8563bef68a" // TODO revert once fabric-carpet@8563bef68ac5d6ec8cea08fef825653f05d3786a is published
+	modImplementation "maven.modrinth:carpet:${project.carpet_core_version}"
 
 	// for gametests
 	modGametestImplementation fabricApi.module("fabric-resource-loader-v1", project.fabric_api_version)
@@ -56,11 +76,13 @@ dependencies {
 	modGametestImplementation fabricApi.module("fabric-gametest-api-v1", project.fabric_api_version)
 }
 
+def resourceVersion = project.mod_version
+
 processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.mod_version
+		expand "version": resourceVersion
 	}
 }
 
@@ -69,6 +91,7 @@ processResources {
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
+	options.compilerArgs += ['-Xmaxerrs', '1000']
 
 	it.options.release = 25
 }
@@ -87,6 +110,10 @@ java {
 
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.named('remapSourcesJar') {
+	targetNamespace = 'official'
 }
 
 jar {

@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "carpetextra.mixins",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_25",
   "mixins": [
     "DispenserBlockMixin",
     "FallingBlockEntityMixin",
@@ -29,9 +29,7 @@
     "DispenserBehaviorCarvedPumpkinMixin",
     "DispenserBehaviorMobHeadMixin",
     "MooshroomEntity_StatusEffectAccessorMixin",
-    "HoeItem_TilledBlocksAccessorMixin",
-    "AxeItem_StrippedBlocksAccessorMixin",
-    "AxeItem_allowStripMixin",
+    "BlockTransformerComponent_allowWithoutPlayerMixin",
     "FlowerPotBlock_ContentAccessorMixin",
     "BoatItemAccessorMixin",
     "SculkCatalystMixin",

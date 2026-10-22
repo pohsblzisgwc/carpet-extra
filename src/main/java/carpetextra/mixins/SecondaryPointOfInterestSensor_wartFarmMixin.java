@@ -18,7 +18,7 @@ public class SecondaryPointOfInterestSensor_wartFarmMixin
     // this is just to prevent clerics wandering to soul sand if VANILLA
     // this might come in handy in general making sure villagers don't check 405 blocks around them every 2 seconds
     // for nothing, but hey?
-    @Inject(method = "sense", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "sense(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/passive/VillagerEntity;)V", at = @At("HEAD"), cancellable = true)
     private void notVanillaCleric(ServerWorld world, VillagerEntity villager, CallbackInfo ci)
     {
         if(!CarpetExtraSettings.clericsFarmWarts && villager.getVillagerData().profession().matchesKey(VillagerProfession.CLERIC))

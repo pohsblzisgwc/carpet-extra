@@ -3,7 +3,7 @@ name: Attach test report
 # Needs to be run separately because runs on external repositories can't add checks
 on:
   workflow_run:
-    workflows: [ "Pull Request Builds" ]
+    workflows: [ "Manual GameTests" ]
     types: [ completed ]
 
 jobs:

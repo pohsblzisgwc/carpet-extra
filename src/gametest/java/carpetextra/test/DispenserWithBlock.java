@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 
 import carpetextra.machinery.DynamicTest;
 import carpetextra.machinery.TestProvider;
-import carpetextra.mixins.AxeItem_StrippedBlocksAccessorMixin;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -26,8 +25,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potions;
+import net.minecraft.registry.Registries;
 import net.minecraft.test.TestContext;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.GameMode;
@@ -132,12 +133,12 @@ public class DispenserWithBlock {
     @TestProvider
     public Collection<DynamicTest> stripTests() {
         List<DynamicTest> fns = new ArrayList<>();
-        Map<Block, Block> conversions = AxeItem_StrippedBlocksAccessorMixin.getStrippedBlocks();
-        
-        for (Map.Entry<Block, Block> entry : conversions.entrySet()) {
-            fns.add(makeDispenserTest("strip_" + entry.getKey().asItem(), (ctx) -> {
-                stripTest(ctx, Items.IRON_AXE, entry.getKey(), entry.getValue());
-            }));
+        // Discover vanilla log/wood pairs without the removed AxeItem table.
+        for (Block block : Registries.BLOCK) {
+            Identifier id = Registries.BLOCK.getId(block);
+            Registries.BLOCK.getOptionalValue(id.withPrefixedPath("stripped_")).ifPresent(stripped ->
+                    fns.add(makeDispenserTest("strip_" + block.asItem(), ctx ->
+                            stripTest(ctx, Items.IRON_AXE, block, stripped))));
         }
         for (Item tool : List.of(Items.WOODEN_AXE, Items.STONE_AXE, Items.GOLDEN_AXE, Items.IRON_AXE, Items.DIAMOND_AXE, Items.NETHERITE_AXE)) {
             fns.add(makeDispenserTest("stripwith" + tool, (ctx) -> {

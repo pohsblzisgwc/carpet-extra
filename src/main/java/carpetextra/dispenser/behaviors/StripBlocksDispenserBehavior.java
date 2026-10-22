@@ -1,16 +1,9 @@
 package carpetextra.dispenser.behaviors;
 
-import java.util.Collection;
-import java.util.Set;
-
+import carpetextra.dispenser.BlockTransformerHelper;
 import carpetextra.dispenser.DispenserItemUsageContext;
-import carpetextra.mixins.AxeItem_StrippedBlocksAccessorMixin;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.Oxidizable;
 import net.minecraft.block.dispenser.FallibleItemDispenserBehavior;
-import net.minecraft.item.HoneycombItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
@@ -21,28 +14,15 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 public class StripBlocksDispenserBehavior extends FallibleItemDispenserBehavior {
-    // stripable blocks
-    public static final Set<Block> STRIPPED_BLOCKS = AxeItem_StrippedBlocksAccessorMixin.getStrippedBlocks().keySet();
-    public static final Set<Block> DEOXIDIZE_BLOCKS = Oxidizable.OXIDATION_LEVEL_DECREASES.get().keySet();
-    public static final Set<Block> DEWAX_BLOCKS = HoneycombItem.WAXED_TO_UNWAXED_BLOCKS.get().keySet();
-
-    // strip results
-    public static final Collection<Block> STRIPPED_RESULTS = AxeItem_StrippedBlocksAccessorMixin.getStrippedBlocks().values();
-    public static final Set<Block> DEOXIDIZE_RESULTS = Oxidizable.OXIDATION_LEVEL_DECREASES.get().values();
-    public static final Set<Block> DEWAX_RESUTLS = HoneycombItem.WAXED_TO_UNWAXED_BLOCKS.get().values();
-
-
     @Override
     protected ItemStack dispenseSilently(BlockPointer pointer, ItemStack stack) {
         this.setSuccess(true);
         ServerWorld world = pointer.world();
         Direction dispenserFacing = pointer.state().get(DispenserBlock.FACING);
         BlockPos frontBlockPos = pointer.pos().offset(dispenserFacing);
-        BlockState frontBlockState = world.getBlockState(frontBlockPos);
-        Block frontBlock = frontBlockState.getBlock();
 
         // check if axe can be used on block
-        if(canStrip(frontBlock)) {
+        if(BlockTransformerHelper.canTransform(stack, world, frontBlockPos)) {
             BlockHitResult hitResult = new BlockHitResult(Vec3d.ofCenter(frontBlockPos), dispenserFacing.getOpposite(), frontBlockPos, false);
             ItemUsageContext context = new DispenserItemUsageContext(world, stack, hitResult);
 
@@ -59,13 +39,4 @@ public class StripBlocksDispenserBehavior extends FallibleItemDispenserBehavior 
         return stack;
     }
 
-    // checks if a block can be stripped with an axe
-    public static boolean canStrip(Block block) {
-        return STRIPPED_BLOCKS.contains(block) || DEOXIDIZE_BLOCKS.contains(block) || DEWAX_BLOCKS.contains(block);
-    }
-
-    // checks if a block is a result of being stripped with an axe
-    public static boolean isStripResult(Block block) {
-        return STRIPPED_RESULTS.contains(block) || DEOXIDIZE_RESULTS.contains(block) || DEWAX_RESUTLS.contains(block);
-    }
 }
